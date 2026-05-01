@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDO-CHECK</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- HEADER -->
+    <header class="app-header" role="banner">
+      <div class="header-inner">
+        <div class="header-left">
+          <div class="logo">
+            <span class="logo-mark" aria-hidden="true">
+              <svg width="16" height="13" viewBox="0 0 16 13" fill="none">
+                <path d="M1.5 6.5L6 11L14.5 1.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="logo-text">IDO-CHECK</span>
+          </div>
+          <p class="header-date" id="header-date"></p>
+        </div>
+        <button id="theme-toggle" class="btn-icon" aria-label="테마 전환">
+          <span class="icon-light" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </span>
+          <span class="icon-dark" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <main role="main" class="app-main">
+
+      <!-- ========== VIEW: 오늘 / 전체 ========== -->
+      <div id="view-tasks" class="view active">
+
+        <!-- Category Tabs -->
+        <nav class="category-nav" role="navigation" aria-label="카테고리 필터">
+          <ul role="list" class="category-tabs" id="category-tabs">
+            <li role="listitem"><button class="tab-btn active" data-category="all" aria-pressed="true">전체</button></li>
+            <li role="listitem"><button class="tab-btn" data-category="career" aria-pressed="false">커리어</button></li>
+            <li role="listitem"><button class="tab-btn" data-category="dev" aria-pressed="false">자기계발</button></li>
+            <li role="listitem"><button class="tab-btn" data-category="home" aria-pressed="false">집안일</button></li>
+            <li role="listitem"><button class="tab-btn" data-category="finance" aria-pressed="false">재무</button></li>
+          </ul>
+        </nav>
+
+        <!-- Task Input -->
+        <div class="card task-input-card">
+          <form id="task-form" novalidate>
+            <div class="input-group">
+              <input
+                type="text"
+                id="task-input"
+                class="task-input"
+                placeholder="할일을 입력하세요..."
+                autocomplete="off"
+                maxlength="200"
+                aria-label="할일 입력"
+              >
+              <select id="category-select" class="category-select" aria-label="카테고리 선택">
+                <option value="">없음</option>
+                <option value="career">커리어</option>
+                <option value="dev">자기계발</option>
+                <option value="home">집안일</option>
+                <option value="finance">재무</option>
+              </select>
+              <button type="submit" class="btn-primary">추가</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Task Groups -->
+        <section class="task-list-section" aria-label="할일 목록">
+
+          <div class="task-group" id="group-todo">
+            <h2 class="group-heading">
+              <span class="kicker">예정</span>
+              <span class="count-pill" id="count-todo">0</span>
+            </h2>
+            <ul role="list" class="task-list" id="list-todo" aria-label="예정된 할일"></ul>
+          </div>
+
+          <div class="task-group" id="group-inprogress">
+            <h2 class="group-heading">
+              <span class="kicker">진행중</span>
+              <span class="count-pill count-pill--warn" id="count-inprogress">0</span>
+            </h2>
+            <ul role="list" class="task-list" id="list-inprogress" aria-label="진행중인 할일"></ul>
+          </div>
+
+          <div class="task-group" id="group-done">
+            <h2 class="group-heading">
+              <span class="kicker">완료</span>
+              <span class="count-pill count-pill--done" id="count-done">0</span>
+            </h2>
+            <ul role="list" class="task-list" id="list-done" aria-label="완료된 할일"></ul>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="empty-state" hidden>
+            <div class="empty-icon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+                <rect x="8" y="6" width="32" height="36" rx="4" stroke="currentColor" stroke-width="2" fill="none" opacity="0.25"/>
+                <line x1="15" y1="16" x2="33" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.35"/>
+                <line x1="15" y1="23" x2="33" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.35"/>
+                <line x1="15" y1="30" x2="26" y2="30" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.35"/>
+              </svg>
+            </div>
+            <p class="empty-title">할일이 없어요</p>
+            <p class="empty-sub">오늘의 첫 번째 할일을 추가해 보세요.</p>
+            <button class="btn-pill-cta" id="empty-cta" aria-label="할일 추가">+ 할일 추가</button>
+          </div>
+
+        </section>
+      </div>
+
+      <!-- ========== VIEW: 인사이트 ========== -->
+      <div id="view-insight" class="view" aria-label="인사이트">
+        <h2 class="page-title">인사이트</h2>
+
+        <!-- Stats row -->
+        <div class="stats-grid" id="stats-grid">
+          <div class="card stat-card">
+            <p class="stat-label kicker">전체</p>
+            <p class="stat-value" id="stat-total">0</p>
+          </div>
+          <div class="card stat-card">
+            <p class="stat-label kicker">오늘 완료</p>
+            <p class="stat-value" id="stat-today-done">0</p>
+          </div>
+          <div class="card stat-card">
+            <p class="stat-label kicker">진행중</p>
+            <p class="stat-value" id="stat-inprog">0</p>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="card chart-card chart-card--wide">
+            <p class="kicker chart-kicker">완료 히트맵</p>
+            <div id="chart-heatmap" class="chart-container" aria-label="날짜별 완료 히트맵"></div>
+          </div>
+          <div class="card chart-card">
+            <p class="kicker chart-kicker">주간 추세</p>
+            <div id="chart-weekly" class="chart-container" aria-label="주간 완료 추세"></div>
+          </div>
+          <div class="card chart-card">
+            <p class="kicker chart-kicker">카테고리별 완료</p>
+            <div id="chart-donut" class="chart-container" aria-label="카테고리별 완료율"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== VIEW: 설정 ========== -->
+      <div id="view-settings" class="view" aria-label="설정">
+        <h2 class="page-title">설정</h2>
+
+        <div class="card settings-card">
+          <p class="kicker settings-group-kicker">화면 테마</p>
+          <div class="settings-row">
+            <span class="settings-label">테마 선택</span>
+            <div class="theme-btn-group" role="group" aria-label="테마 선택">
+              <button class="theme-opt" data-theme-val="light" aria-pressed="false">라이트</button>
+              <button class="theme-opt active" data-theme-val="system" aria-pressed="true">자동</button>
+              <button class="theme-opt" data-theme-val="dark" aria-pressed="false">다크</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card settings-card">
+          <p class="kicker settings-group-kicker">데이터 관리</p>
+          <div class="settings-row">
+            <span class="settings-label">전체 할일 삭제</span>
+            <button class="btn-danger-pill" id="clear-all-btn">삭제</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer" role="contentinfo">
+      <div class="footer-inner">
+        <div class="footer-meta">
+          <span class="footer-item">
+            <span class="footer-label">개발일시</span>
+            <span class="footer-value">2026.05.01</span>
+          </span>
+          <span class="footer-divider" aria-hidden="true">·</span>
+          <span class="footer-item">
+            <span class="footer-label">개발자</span>
+            <span class="footer-value">MR RYU</span>
+          </span>
+          <span class="footer-divider" aria-hidden="true">·</span>
+          <span class="footer-item">
+            <a class="footer-link" href="mailto:mydewy2025@gmail.com">mydewy2025@gmail.com</a>
+          </span>
+        </div>
+        <div class="footer-stack">
+          <span class="footer-stack-label kicker">Tech Stack</span>
+          <div class="footer-tags">
+            <span class="footer-tag">HTML5</span>
+            <span class="footer-tag">CSS3</span>
+            <span class="footer-tag">Vanilla JS</span>
+            <span class="footer-tag">D3.js v7</span>
+            <span class="footer-tag">LocalStorage</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- FAB -->
+    <button id="fab" class="fab-btn" aria-label="새 할일 추가">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" role="navigation" aria-label="메인 네비게이션">
+      <button class="nav-btn active" data-view="today" aria-pressed="true" aria-label="오늘 할일">
+        <span class="nav-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </span>
+        <span class="nav-label">오늘</span>
+      </button>
+      <button class="nav-btn" data-view="all" aria-pressed="false" aria-label="전체 할일">
+        <span class="nav-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="nav-label">전체</span>
+      </button>
+      <button class="nav-btn" data-view="insight" aria-pressed="false" aria-label="인사이트">
+        <span class="nav-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </span>
+        <span class="nav-label">인사이트</span>
+      </button>
+      <button class="nav-btn" data-view="settings" aria-pressed="false" aria-label="설정">
+        <span class="nav-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        <span class="nav-label">설정</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="./app.js"></script>
+  <script src="./chart.js"></script>
+</body>
+</html>
